@@ -14,87 +14,72 @@ export default class Router {
         // page('liste/:id', this.#getBieres, this.getTemplate, this.showTemplate);
         // page('*', this.getTemplate, this.showTemplate);
 
-        page({window: window}) // page comprend que this c'est routeur, alors qu'on doit faire window
+        page({ window: window }) // page comprend que this c'est routeur, alors qu'on doit faire window
     }
 
     #getMeilleuresBieres = (ctx, next) => {
         fetch('http://127.0.0.1:8000/webservice/php/biere/')
-        .then((res)=>{
-            return res.json();
-        })
-        .then((donnees)=>{
-            
-            let bieres = donnees.data
-            // console.log(donnees.data);
+            .then((res) => {
+                return res.json();
+            })
+            .then((donnees) => {
 
-            for (let i = 0; i < 5; i++) {
-                bieres[i].note_moyenne = parseFloat(bieres[i].note_moyenne).toFixed(1);
-                if (!bieres[i].image) {
+                let bieres = donnees.data
+                // console.log(donnees.data);
+                let meilleuresBieres = [];
+
+                for (let i = 0; i < 5; i++) {
                     bieres[i].image = 'assets/images/no-image.jpeg';
-                    //console.log(bieres[i]);
+                    meilleuresBieres.push(bieres[i]);
                 }
-            }
 
-            ctx.data = bieres;
-            //ctx.data.grid = '4';
-            ctx.template = 'biere';
-            console.log(ctx.data);
-            next();
-        })
+                ctx.data = meilleuresBieres;
+                ctx.template = 'biere';
+                next();
+            })
     }
 
     #getBieres = (ctx, next) => {
-        //console.log('getBieres');
+
         fetch('http://127.0.0.1:8000/webservice/php/biere/')
-        .then((res)=>{
-            return res.json();
-        })
-        .then((donnees)=>{
-            
-            let bieres = donnees.data
-            // console.log(donnees.data);
+            .then((res) => {
+                return res.json();
+            })
+            .then((donnees) => {
 
-            for (let i = 0; i < bieres.length; i++) {
-                bieres[i].note_moyenne = parseFloat(bieres[i].note_moyenne).toFixed(1);
-                if (!bieres[i].image) {
-                    bieres[i].image = 'assets/images/no-image.jpeg';
+                let bieres = donnees.data
+                // console.log(donnees.data);
+
+                for (let i = 0; i < bieres.length; i++) {
+                    bieres[i].note_moyenne = parseFloat(bieres[i].note_moyenne).toFixed(1);
+                    if (!bieres[i].image) {
+                        bieres[i].image = 'assets/images/no-image.jpeg';
+                    }
                 }
-            }
 
-            ctx.data = bieres;
-            ctx.data.grid = '4';
-            ctx.template = 'liste';
+                ctx.data = bieres;
+                ctx.data.grid = '4';
+                ctx.template = 'liste';
 
-            next();
+                next();
 
-            //console.log(data);
-        })
+            })
     }
 
-    /*#getBieresList = (ctx, next) => {
-        console.log(ctx);
-        //console.log('getBieresList');
-        
-    }*/
 
     getTemplate = (ctx, next) => {
-        //console.log(ctx.template);
         fetch(`vues/${ctx.template}.html`)
-        .then((res)=>{
-            return res.text();
-        })
-        .then((template)=>{
-            //console.log(template);
-            ctx.data.template = template;
-            next();  // pour appaler la prochaine fonction mis dans la ligne 10
-        })
+            .then((res) => {
+                return res.text();
+            })
+            .then((template) => {
+                ctx.data.template = template;
+                next();  // pour appaler la prochaine fonction mis dans la ligne 10
+            })
     }
 
     showTemplate = (ctx) => {
-        // console.log(ctx);
-        // console.log(ctx.data.template);
-
-        let rendered = Mustache.render(ctx.data.template, {data: ctx.data});
+        let rendered = Mustache.render(ctx.data.template, { data: ctx.data });
         this._elBiero.innerHTML = rendered;
     }
 }
